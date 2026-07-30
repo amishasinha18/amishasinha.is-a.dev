@@ -1,0 +1,314 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Ubuntu-inspired — clean light site, Aubergine purple headers/accents,
+     Ubuntu Orange call-to-action. */
+  :root {
+    --color-background: 244 244 244; /* #F4F4F4 soft grey-white page */
+    --color-surface: 249 249 249; /* #F9F9F9 soft off-white cards (no pure white) */
+    --color-foreground: 31 26 29; /* #1F1A1D warm charcoal */
+    --color-muted: 108 92 103; /* #6C5C67 muted aubergine-gray */
+    --color-border: 231 225 229; /* #E7E1E5 */
+    --color-primary: 119 33 111; /* #77216F Ubuntu Aubergine (headers/accents) */
+    --color-primary-fg: 255 255 255; /* white on aubergine */
+    --color-accent: 233 84 32; /* #E95420 Ubuntu Orange (CTA) */
+    --color-accent-fg: 255 255 255; /* white on orange */
+  }
+
+  /* Ubuntu-inspired Dark Mode — deep Aubergine surfaces, orange accents. */
+  .dark {
+    --color-background: 44 0 30; /* #2C001E deep aubergine */
+    --color-surface: 59 13 44; /* #3B0D2C aubergine card */
+    --color-foreground: 245 238 242; /* #F5EEF2 soft light */
+    --color-muted: 180 159 172; /* #B49FAC */
+    --color-border: 82 48 74; /* #52304A */
+    --color-primary: 192 139 214; /* #C08BD6 light aubergine (headers/accents) */
+    --color-primary-fg: 44 0 30; /* #2C001E on light aubergine */
+    --color-accent: 233 84 32; /* #E95420 Ubuntu Orange (CTA) */
+    --color-accent-fg: 255 255 255; /* white on orange */
+  }
+
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-border)) rgb(var(--color-background));
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  /* Smooth theme transition across color properties (excludes #bg-dots,
+     which must stay perfectly static and never animate/flicker). */
+  *:not(#bg-dots),
+  ::before,
+  ::after {
+    transition: background-color 0.3s ease, border-color 0.3s ease,
+      color 0.3s ease, fill 0.3s ease;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Minimalist: sans-serif everywhere. Headings just get tighter tracking. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight;
+  }
+
+  section {
+    scroll-margin-top: 5rem;
+  }
+
+  /* ---------------------------------------------------------------------
+     Site-wide content protection — CSS half
+     ---------------------------------------------------------------------
+     Text selection is disabled across the whole document. `user-select`
+     inherits, so setting it on <html> covers every descendant without the
+     cost of a universal `*` selector.
+
+     The JS half (hooks/useContentProtection.js) blocks the context menu,
+     copy/cut, drag and the Ctrl/Cmd shortcuts.
+
+     NOTE: this deters casual copying only. View Source, DevTools, curl and
+     disabling JavaScript all bypass it trivially.
+     --------------------------------------------------------------------- */
+  html {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Suppress the iOS long-press selection callout. */
+    -webkit-touch-callout: none;
+  }
+
+  /* Images cannot be dragged out to the desktop / another tab. */
+  img {
+    -webkit-user-drag: none;
+  }
+
+  /* Form fields are the one deliberate exception. Without this a visitor
+     could not select, correct or paste into the contact form — that is
+     their own input, not site content worth protecting. */
+  input,
+  textarea,
+  select {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+
+  /* Terminal-style scrollbars (token-based, adapts to both themes) */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--color-background));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-border));
+    border: 2px solid rgb(var(--color-background));
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--color-primary) / 0.7);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Experience timeline rail
+   ---------------------------------------------------------------------
+   A soft aubergine→orange band travels continuously down the connecting
+   line, giving the timeline a slow "flow". The gradient tile is exactly
+   `background-size` tall and the keyframe translates by exactly one tile
+   height, so the loop is seamless with no visible jump at the wrap point.
+
+   Token-driven (not hardcoded hex) so the band re-tints correctly in dark
+   mode. The line is 1px wide, so the per-frame repaint cost is negligible.
+   --------------------------------------------------------------------- */
+@keyframes rail-flow {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: 240px;
+  }
+}
+
+/* The lit portion of the rail. Its height is bound to scroll position in
+   Experience.jsx (scaleY on a MotionValue); this only supplies the colour
+   and the band that keeps travelling along it once filled. */
+.timeline-rail-progress {
+  background-image: linear-gradient(
+    to bottom,
+    rgb(var(--color-primary)) 0%,
+    rgb(var(--color-accent)) 38%,
+    rgb(var(--color-primary)) 72%,
+    rgb(var(--color-accent)) 100%
+  );
+  background-size: 100% 240px;
+  background-repeat: repeat-y;
+  animation: rail-flow 3.5s linear infinite;
+  box-shadow: 0 0 6px rgb(var(--color-primary) / 0.5);
+}
+
+/* Respect a reduced-motion preference: the scroll-linked fill stays (it is
+   driven by the visitor's own scrolling), but the perpetual travelling band
+   stops. */
+@media (prefers-reduced-motion: reduce) {
+  .timeline-rail-progress {
+    animation: none;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(var(--color-primary)),
+      rgb(var(--color-accent))
+    );
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Tech-card texture — faint blueprint grid behind the Tech Project cards.
+   Lighter and larger-pitch than the Electronics circuit grid, so it reads
+   as a surface treatment rather than a pattern. Masked to the top-left so
+   it fades out before it reaches the text.
+   --------------------------------------------------------------------- */
+.tech-grid {
+  background-image:
+    linear-gradient(rgb(var(--color-primary) / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--color-primary) / 0.05) 1px, transparent 1px);
+  background-size: 34px 34px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 85% 80% at 8% 0%,
+    black 5%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(ellipse 85% 80% at 8% 0%, black 5%, transparent 72%);
+}
+
+/* ---------------------------------------------------------------------
+   Circuit-board texture — behind the Electronics project cards.
+   Two hairline grids form the traces; a dot layer offset to the cell
+   centres sits on top as solder pads. Masked so it fades out toward the
+   bottom instead of stopping at a hard edge.
+
+   Applied to a dedicated absolutely-positioned layer (not a pseudo
+   element) so card content can sit above it without stacking tricks.
+   Token-driven, so it re-tints in dark mode.
+   --------------------------------------------------------------------- */
+.circuit-grid {
+  background-image:
+    linear-gradient(rgb(var(--color-primary) / 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--color-primary) / 0.08) 1px, transparent 1px),
+    radial-gradient(rgb(var(--color-primary) / 0.2) 1.5px, transparent 1.5px);
+  background-size: 26px 26px, 26px 26px, 26px 26px;
+  background-position: 0 0, 0 0, 13px 13px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 120% 110% at 50% 0%,
+    black 25%,
+    transparent 88%
+  );
+  mask-image: radial-gradient(ellipse 120% 110% at 50% 0%, black 25%, transparent 88%);
+}
+
+/* ---------------------------------------------------------------------
+   Contact form fields — premium hover / focus treatment.
+   Token-driven (re-tints in dark mode). A soft focus ring + a diffuse glow
+   read as high-end; hover is a lighter preview of the same. `:not(:focus)`
+   on hover keeps the stronger focus state from being diluted mid-interaction.
+   Pseudo-class specificity (0,2,0) beats the `.border-border` utility (0,1,0),
+   so the border highlight wins without !important.
+   --------------------------------------------------------------------- */
+.field-input {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.field-input:hover:not(:focus) {
+  border-color: rgb(var(--color-primary) / 0.55);
+  box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.07),
+    0 8px 22px -8px rgb(var(--color-primary) / 0.3);
+}
+
+.field-input:focus {
+  border-color: rgb(var(--color-primary));
+  box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.16),
+    0 12px 30px -8px rgb(var(--color-primary) / 0.45);
+}
+
+/* Invalid fields keep a red border and glow through hover / focus. */
+.field-input-error {
+  border-color: rgb(239 68 68);
+}
+
+.field-input-error:hover:not(:focus),
+.field-input-error:focus {
+  border-color: rgb(239 68 68);
+  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.16),
+    0 10px 26px -8px rgb(239 68 68 / 0.35);
+}
+
+/* Profile photo — circular, token-driven aubergine ring, centered.
+   Uses --color-primary (not a hardcoded hex) so the ring lightens correctly
+   in dark mode. The layered box-shadow builds a soft halo + a crisp inner
+   hairline for depth without a heavy border. */
+.profile-photo {
+  display: block;
+  width: 12rem; /* 192px (≈ h-48 w-48) */
+  height: 12rem;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid rgb(var(--color-primary));
+  margin: 0 auto 28px;
+  box-shadow:
+    0 0 0 1px rgb(var(--color-primary) / 0.18),
+    0 0 0 10px rgb(var(--color-primary) / 0.06),
+    0 14px 32px rgb(0 0 0 / 0.16);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.profile-photo:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 0 0 1px rgb(var(--color-primary) / 0.28),
+    0 0 0 14px rgb(var(--color-primary) / 0.09),
+    0 22px 46px rgb(0 0 0 / 0.22);
+}
+
+/* Scale down on small screens so it never breaks the layout. */
+@media (max-width: 640px) {
+  .profile-photo {
+    width: 9rem; /* 144px */
+    height: 9rem;
+    margin-bottom: 22px;
+  }
+}
+
+/* Faint engineering-blueprint dot grid — decorative depth behind every page.
+   Lives outside the React tree (see #bg-dots in index.html) so it is painted
+   once by the browser and stays perfectly stable across every tab/page
+   transition — nothing here ever mounts, unmounts, or re-renders. */
+#bg-dots {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.45; /* softened ~25% from 0.6 so tab content pops more */
+  pointer-events: none;
+  background-image: radial-gradient(rgb(var(--color-primary) / 0.5) 1px, transparent 1px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 40%, black 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 90% 90% at 50% 40%, black 55%, transparent 100%);
+}
+

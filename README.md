@@ -1,29 +1,41 @@
-# Amisha Sinha — Developer Portfolio
+# Amisha Sinha
 
-Personal portfolio site for Amisha Sinha — Cloud & DevOps enthusiast, B.Tech CSE.
+**Cloud & DevOps Enthusiast · B.Tech, Computer Science & Engineering**
 
-🔗 **Live:** https://amishasinha.is-a.dev
+Building scalable cloud solutions, automating infrastructure with DevOps practices, and exploring how modern applications are deployed, managed, and secured.
 
-## Tech stack
+🌐 **[amishasinha.is-a.dev](https://amishasinha.is-a.dev)**
 
-- **React 19** + **Vite** — single-page app
-- **Tailwind CSS** — styling, light/dark themes
-- **Framer Motion** — animations and transitions
-- **lucide-react** — icons
+---
 
-## Sections
+## About
 
-Overview · About · Experience · Skills · Projects · Blog · Contact
+I'm a Computer Science undergraduate focused on **Cloud Computing and DevOps** — passionate about building reliable systems, automating workflows, and turning ideas into deployed, production-ready software. This site brings together my projects, experience, and the tools I work with.
 
-## Develop
+## Focus Areas
 
-```bash
-npm install     # install dependencies
-npm run dev     # start the dev server (http://localhost:5173)
-npm run build   # production build → dist/
-npm run preview # preview the production build
-```
+| Area | Tools & Technologies |
+| --- | --- |
+| **Cloud Infrastructure** | AWS · Linux |
+| **DevOps & Automation** | Git · GitHub · Bash · CI/CD workflows |
+| **Currently Exploring** | Docker · Kubernetes · Terraform |
+| **Development** | JavaScript · Real-time web (WebRTC, LiveKit) |
+
+## Built With
+
+`React 19` · `Vite` · `Tailwind CSS` · `Framer Motion`
 
 ## Deployment
 
-Hosted on **Vercel** — every push to `main` triggers an automatic build and deploy.
+Continuously deployed on **Vercel** — every push to `main` triggers an automated build and a global CDN release with managed HTTPS, following a modern push-to-deploy workflow.
+
+## Connect
+
+- 🌐 **Portfolio** — [amishasinha.is-a.dev](https://amishasinha.is-a.dev)
+- 💼 **LinkedIn** — [linkedin.com/in/amishasinha18](https://www.linkedin.com/in/amishasinha18)
+- 💻 **GitHub** — [github.com/amishasinha18](https://github.com/amishasinha18)
+- ✉️ **Email** — sinhaamisha1804@gmail.com
+
+---
+
+<sub>© 2026 Amisha Sinha</sub>

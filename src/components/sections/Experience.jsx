@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { ExternalLink, MapPin } from 'lucide-react';
-import { experience } from '../../data/experience.js';
+import { useContent } from '../../content/ContentContext.jsx';
 import { useIsScrolling } from '../../hooks/useIsScrolling.js';
 import SectionHeading from '../ui/SectionHeading.jsx';
 
@@ -255,6 +255,8 @@ function TimelineEntry({ job, index, total, isScrolling }) {
 }
 
 export default function Experience() {
+  const { experience, siteText } = useContent();
+  const t = siteText.sections.experience;
   // Drives the timeline line's scroll-gated visibility. Computed once here
   // and passed to every row so there is a single scroll listener.
   const isScrolling = useIsScrolling();
@@ -263,9 +265,9 @@ export default function Experience() {
     <section id="experience" className="bg-surface/70 pt-10 pb-24 sm:pt-14 transition-none">
       <div className="container">
         <SectionHeading
-          eyebrow="Where I've worked"
-          title="Work Experience"
-          subtitle="A glimpse into my professional journey and the organizations I've had the opportunity to work with."
+          eyebrow={t.eyebrow}
+          title={t.title}
+          subtitle={t.subtitle}
         />
 
         {/* Timeline */}

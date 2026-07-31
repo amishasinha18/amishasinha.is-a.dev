@@ -4,9 +4,11 @@ import Section from '../ui/Section.jsx';
 import ProjectTabs from '../projects/ProjectTabs.jsx';
 import ProjectCard from '../projects/ProjectCard.jsx';
 import ElectronicsProject from '../projects/ElectronicsProject.jsx';
-import { projectData, projectTabs } from '../../data/projects.js';
+import { useContent } from '../../content/ContentContext.jsx';
 
 export default function Projects() {
+  const { projectData, projectTabs, siteText } = useContent();
+  const t = siteText.sections.projects;
   const [active, setActive] = useState(projectTabs[0].key);
   const items = projectData[active] ?? [];
   // Featured first, everything else in data order.
@@ -18,8 +20,9 @@ export default function Projects() {
   return (
     <Section
       id="projects"
-      eyebrow="Selected work"
-      title="Projects"
+      eyebrow={t.eyebrow}
+      title={t.title}
+      subtitle={t.subtitle}
       padY="pt-12 pb-28 sm:pt-16 sm:pb-40"
     >
       <ProjectTabs active={active} onChange={setActive} />

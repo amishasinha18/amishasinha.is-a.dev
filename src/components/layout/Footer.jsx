@@ -1,15 +1,6 @@
 import { FileText, Mail, NotebookPen } from 'lucide-react';
 import { Github, Linkedin } from '../ui/BrandIcons.jsx';
-import { profile } from '../../data/profile.js';
-
-// `href` opens externally; `page` navigates to an in-app view instead.
-const links = [
-  { label: 'GitHub', href: profile.socials.github, icon: Github },
-  { label: 'LinkedIn', href: profile.socials.linkedin, icon: Linkedin },
-  { label: 'Blog', page: 'blog', icon: NotebookPen },
-  { label: 'Resume', href: profile.resumeUrl, icon: FileText },
-  { label: 'Email', href: `mailto:${profile.email}`, icon: Mail },
-];
+import { useContent } from '../../content/ContentContext.jsx';
 
 // Plain glyphs for the outbound social/contact links.
 const itemClass =
@@ -22,6 +13,15 @@ const blogClass =
   'group/blog inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-fg hover:shadow-lg hover:shadow-primary/30';
 
 export default function Footer({ onNavigate }) {
+  const { profile, siteText } = useContent();
+  // `href` opens externally; `page` navigates to an in-app view instead.
+  const links = [
+    { label: 'GitHub', href: profile.socials.github, icon: Github },
+    { label: 'LinkedIn', href: profile.socials.linkedin, icon: Linkedin },
+    { label: 'Blog', page: 'blog', icon: NotebookPen },
+    { label: 'Resume', href: profile.resumeUrl, icon: FileText },
+    { label: 'Email', href: `mailto:${profile.email}`, icon: Mail },
+  ];
   return (
     <footer className="border-t border-border bg-surface">
       <div className="container flex flex-col items-center gap-6 py-10">
@@ -57,7 +57,7 @@ export default function Footer({ onNavigate }) {
           )}
         </div>
         <p className="text-sm text-muted">
-          © {new Date().getFullYear()} {profile.name}. All rights reserved.
+          © {new Date().getFullYear()} {profile.name}. {siteText.footer.rights}
         </p>
       </div>
     </footer>

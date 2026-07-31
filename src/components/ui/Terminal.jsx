@@ -1,48 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useContent } from '../../content/ContentContext.jsx';
 
 // Ubuntu/Linux-style terminal card — the authentic developer-terminal
 // aesthetic. Command text is near-white, output is soft grey. Commands are
 // typed character-by-character; their output then streams in quickly, the way
-// a real shell prints it after you press Enter.
-const commands = [
-  { command: 'whoami', output: ['Amisha Sinha'] },
-  { command: 'role', output: ['Cloud & DevOps Enthusiast'] },
-  {
-    command: 'focus',
-    output: ['Cloud Infrastructure', 'DevOps Automation', 'Linux', 'Applied AI'],
-  },
-  { command: 'currently-learning', output: ['Docker', 'Kubernetes', 'Terraform'] },
-  {
-    command: 'goal',
-    output: ['Design secure, scalable, and reliable cloud solutions'],
-  },
-];
+// a real shell prints it after you press Enter. The script (terminalCommands)
+// is editable content, so segments/model are derived per-render via useMemo.
 
-// Flatten the script into an ordered list of typed segments. Each command and
-// each output line is one segment; the state machine advances through them.
-const segments = [];
-commands.forEach((c, block) => {
-  segments.push({ kind: 'command', block, text: c.command });
-  c.output.forEach((line, oi) =>
-    segments.push({
-      kind: 'output',
-      block,
-      text: line,
-      lastInBlock: oi === c.output.length - 1,
-    })
-  );
-});
-const TOTAL = segments.length;
-
-// Per-model view: the ordinal of each command and each output line, so the
-// renderer can ask "has this piece started, and how much of it shows?".
-let ord = 0;
-const model = commands.map((c) => {
-  const cmdOrd = ord++;
-  const outs = c.output.map((line) => ({ line, ord: ord++ }));
-  return { command: c.command, cmdOrd, outs };
-});
+// Flatten the script into an ordered list of typed segments + a per-command
+// ordinal model. Recomputed when the (editable) commands change.
+function buildTerminal(commands) {
+  const segments = [];
+  (commands ?? []).forEach((c, block) => {
+    segments.push({ kind: 'command', block, text: c.command });
+    (c.output ?? []).forEach((line, oi) =>
+      segments.push({
+        kind: 'output',
+        block,
+        text: line,
+        lastInBlock: oi === c.output.length - 1,
+      })
+    );
+  });
+  let ord = 0;
+  const model = (commands ?? []).map((c) => {
+    const cmdOrd = ord++;
+    const outs = (c.output ?? []).map((line) => ({ line, ord: ord++ }));
+    return { command: c.command, cmdOrd, outs };
+  });
+  return { segments, model, TOTAL: segments.length };
+}
 
 // Typing cadence (ms). Commands are keyed by a human; output prints fast.
 const CMD_CHAR = 60;
@@ -53,10 +41,10 @@ const AFTER_OUT = 70;
 const AFTER_BLOCK = 520; // longer beat between command blocks
 const START_DELAY = 500; // let the card's entrance settle first
 
-function Prompt() {
+function Prompt({ host }) {
   return (
     <>
-      <span className="text-[#C08BD6]">amisha@cloud</span>
+      <span className="text-[#C08BD6]">{host}</span>
       <span className="text-[#A96FBF]">:~</span>
       <span className="text-[#8A6E96]">$</span>{' '}
     </>
@@ -71,6 +59,12 @@ function Cursor() {
 
 export default function Terminal() {
   const reduced = useReducedMotion();
+  const { terminalCommands, siteText } = useContent();
+  const host = siteText.terminal.host;
+  const { segments, model, TOTAL } = useMemo(
+    () => buildTerminal(terminalCommands),
+    [terminalCommands]
+  );
 
   // segIndex = segment currently typing; typed = chars shown of it.
   // With reduced motion we jump straight to the finished state.
@@ -134,7 +128,7 @@ export default function Terminal() {
           <span className="h-3 w-3 rounded-full bg-[#C4A0BD]" />
           <span className="h-3 w-3 rounded-full bg-[#7A5E72]" />
           <span className="ml-3 select-none font-mono text-xs text-[#D8C6D3]">
-            amisha@cloud: ~
+            {host}: ~
           </span>
         </div>
 
@@ -149,7 +143,7 @@ export default function Terminal() {
               <div key={blk.command}>
                 {/* Command line */}
                 <div className="whitespace-nowrap">
-                  <Prompt />
+                  <Prompt host={host} />
                   <span className="font-medium text-[#F5F3F4]">{cmdText}</span>
                   {isActive(blk.cmdOrd) && <Cursor />}
                 </div>

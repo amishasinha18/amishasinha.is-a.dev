@@ -1,35 +1,10 @@
 import { motion } from 'framer-motion';
 import { GraduationCap, School, BookOpen, Trophy } from 'lucide-react';
-import { education } from '../../data/education.js';
-import { profile } from '../../data/profile.js';
+import { useContent } from '../../content/ContentContext.jsx';
+import CustomSections from './CustomSections.jsx';
 
 // Icon per education level (falls back to the graduation cap).
 const eduIcons = [GraduationCap, School, BookOpen];
-
-const aboutParagraphs = [
-  "I'm passionate about building practical software solutions and exploring how cloud technologies make applications scalable, reliable, and efficient.",
-  'During my B.Tech journey, I explored web development before discovering my interest in Cloud Computing and DevOps. I enjoy learning how applications are deployed, managed, and automated using modern cloud technologies.',
-  'Working on academic and team projects has strengthened my problem-solving, collaboration, and debugging skills while teaching me how to build reliable software as part of a team.',
-  'I believe continuous learning and hands-on practice are the foundation of becoming a better engineer. Every project helps me improve my technical skills and brings me one step closer to becoming a Cloud Engineer.',
-];
-
-// Sports achievements — "Beyond Academics" section.
-const sportsAchievements = [
-  {
-    sport: 'Cricket',
-    year: '2025',
-    tag: 'First Runner-Up',
-    org: 'Lovely Professional University',
-    description: 'Represented the college team in a competitive tournament.',
-  },
-  {
-    sport: 'Volleyball',
-    year: '2026',
-    tag: 'First Runner-Up',
-    org: 'Lovely Professional University',
-    description: 'Competed as part of the college volleyball team.',
-  },
-];
 
 function SectionHeading({ children }) {
   return (
@@ -53,6 +28,7 @@ function reveal(i = 0) {
 }
 
 export default function About() {
+  const { education, profile, aboutParagraphs, sportsAchievements, siteText } = useContent();
   return (
     <section id="about" className="bg-surface/70 pt-10 pb-24 sm:pt-14 transition-none">
       <div className="container">
@@ -62,7 +38,7 @@ export default function About() {
         {/* Title */}
         <div className="mb-16 text-center">
           <h2 className="text-4xl font-extrabold tracking-tight text-primary sm:text-5xl">
-            About Me
+            {siteText.sections.about.title}
           </h2>
           <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-gradient-to-r from-primary to-accent" />
         </div>
@@ -171,6 +147,8 @@ export default function About() {
               </div>
             </motion.div>
           </div>
+
+          <CustomSections />
         </div>
       </div>
     </section>

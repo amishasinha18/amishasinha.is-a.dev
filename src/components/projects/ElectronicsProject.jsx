@@ -11,7 +11,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { electronicsProject } from '../../data/projects.js';
+import { useContent } from '../../content/ContentContext.jsx';
 
 // One icon per feature, in order; falls back to a generic bolt.
 const featureIcons = [Bluetooth, MonitorCog, ToggleRight, CircuitBoard];
@@ -58,6 +58,7 @@ function PanelBar({ icon: Icon, label, trailing }) {
 }
 
 export default function ElectronicsProject() {
+  const { electronicsProject } = useContent();
   const { title, intro, features, closing, images, tech } = electronicsProject;
   const [openIndex, setOpenIndex] = useState(null);
   const isOpen = openIndex !== null;

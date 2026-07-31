@@ -4,17 +4,18 @@ import { Github, Linkedin } from '../ui/BrandIcons.jsx';
 import Section from '../ui/Section.jsx';
 import Button from '../ui/Button.jsx';
 import StatusBadge from '../ui/StatusBadge.jsx';
-import { profile } from '../../data/profile.js';
-
-const contactLinks = [
-  { label: 'Email', value: profile.email, href: `mailto:${profile.email}`, icon: Mail },
-  { label: 'GitHub', value: 'View profile', href: profile.socials.github, icon: Github },
-  { label: 'LinkedIn', value: 'Connect', href: profile.socials.linkedin, icon: Linkedin },
-];
+import { useContent } from '../../content/ContentContext.jsx';
 
 const empty = { name: '', email: '', subject: '', message: '' };
 
 export default function Contact() {
+  const { profile, siteText } = useContent();
+  const t = siteText.sections.contact;
+  const contactLinks = [
+    { label: 'Email', value: profile.email, href: `mailto:${profile.email}`, icon: Mail },
+    { label: 'GitHub', value: 'View profile', href: profile.socials.github, icon: Github },
+    { label: 'LinkedIn', value: 'Connect', href: profile.socials.linkedin, icon: Linkedin },
+  ];
   const [form, setForm] = useState(empty);
   const [errors, setErrors] = useState({});
   const [sent, setSent] = useState(false);
@@ -54,23 +55,17 @@ export default function Contact() {
     <Section
       id="contact"
       padY="pt-20 pb-28 sm:pt-28 sm:pb-40"
-      title="Get In Touch"
+      title={t.title}
       subtitle={
         <>
-          <span className="block text-lg font-semibold text-foreground">
-            Let&apos;s Connect.
-          </span>
-          <span className="mt-2 block">
-            Great ideas begin with meaningful conversations. Whether you&apos;d like to
-            collaborate, share ideas, or simply connect, I&apos;d be delighted to hear from
-            you.
-          </span>
+          <span className="block text-lg font-semibold text-foreground">{t.lead}</span>
+          <span className="mt-2 block">{t.body}</span>
         </>
       }
     >
       {/* Availability — shown right where visitors reach out. */}
       <div className="mb-10 mt-10 flex justify-center">
-        <StatusBadge label="Open to Internship Opportunities" />
+        <StatusBadge label={t.badge} />
       </div>
 
       <div className="mx-auto grid max-w-4xl gap-10 md:grid-cols-2">
@@ -127,7 +122,7 @@ export default function Contact() {
           </Button>
           {sent && (
             <p className="flex items-center gap-2 text-sm text-primary">
-              <CheckCircle2 size={16} /> Thanks! Your message has been captured.
+              <CheckCircle2 size={16} /> {t.successMsg}
             </p>
           )}
         </form>

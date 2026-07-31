@@ -1,18 +1,13 @@
 import { motion } from 'framer-motion';
 import { Download } from 'lucide-react';
-import { profile } from '../../data/profile.js';
+import { useContent } from '../../content/ContentContext.jsx';
 import Button from '../ui/Button.jsx';
 import StatusBadge from '../ui/StatusBadge.jsx';
 import Terminal from '../ui/Terminal.jsx';
 
-// Minimalist "Professional Stats" — a value and a single label per card.
-const milestones = [
-  { value: '5+', sub: 'Projects Built' },
-  { value: '5+', sub: 'Certifications Earned' },
-  { value: '10+', sub: 'Technologies Explored' },
-];
-
 export default function Overview({ onNavigate }) {
+  const { profile, milestones, siteText } = useContent();
+  const hero = siteText.hero;
   return (
     <section id="home" className="relative overflow-hidden py-12 sm:py-16">
       <div className="container relative z-10">
@@ -34,7 +29,7 @@ export default function Overview({ onNavigate }) {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="mt-3 text-xl font-medium text-primary sm:text-2xl"
             >
-              Cloud &amp; DevOps Enthusiast
+              {hero.role}
             </motion.p>
 
             {/* Live status badge — a real pulsing dot (not the 🟢 emoji) for a
@@ -45,7 +40,7 @@ export default function Overview({ onNavigate }) {
               transition={{ duration: 0.5, delay: 0.25 }}
               className="mt-4 flex justify-center lg:justify-start"
             >
-              <StatusBadge label="Looking for New Opportunities" />
+              <StatusBadge label={hero.statusBadge} />
             </motion.div>
 
             <motion.p
@@ -54,8 +49,7 @@ export default function Overview({ onNavigate }) {
               transition={{ duration: 0.5, delay: 0.35 }}
               className="mt-3 max-w-xl text-base leading-relaxed text-muted mx-auto lg:mx-0 sm:text-lg"
             >
-              Building scalable cloud solutions, automating infrastructure with DevOps,
-              strengthening Linux expertise, and applying AI to solve real-world problems.
+              {hero.bio}
             </motion.p>
 
             <motion.div
@@ -72,14 +66,14 @@ export default function Overview({ onNavigate }) {
                 download
                 className="shadow-lg shadow-primary/30 duration-300 ease-out hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/50"
               >
-                <Download size={18} /> Resume
+                <Download size={18} /> {hero.resumeLabel}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => onNavigate('contact')}
                 className="duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30"
               >
-                Contact
+                {hero.contactLabel}
               </Button>
             </motion.div>
           </div>

@@ -1,15 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
-import { navLinks } from '../../data/navLinks.js';
-import { profile } from '../../data/profile.js';
+import { useContent } from '../../content/ContentContext.jsx';
 import { Github, Linkedin } from '../ui/BrandIcons.jsx';
 import ThemeToggle from '../ui/ThemeToggle.jsx';
-
-const socials = [
-  { label: 'GitHub', href: profile.socials.github, Icon: Github },
-  { label: 'LinkedIn', href: profile.socials.linkedin, Icon: Linkedin },
-];
 
 // Icon button styling shared with ThemeToggle, so the header cluster reads
 // as one consistent row of controls.
@@ -17,6 +11,11 @@ const iconBtn =
   'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground transition hover:border-accent hover:text-accent';
 
 function SocialLinks() {
+  const { profile } = useContent();
+  const socials = [
+    { label: 'GitHub', href: profile.socials.github, Icon: Github },
+    { label: 'LinkedIn', href: profile.socials.linkedin, Icon: Linkedin },
+  ];
   return (
     <>
       {socials.map(({ label, href, Icon }) => (
@@ -38,6 +37,8 @@ function SocialLinks() {
 
 export default function Navbar({ activePage, onNavigate }) {
   const [open, setOpen] = useState(false);
+  const { siteText } = useContent();
+  const navLinks = siteText.nav;
 
   const go = (id) => {
     onNavigate(id);

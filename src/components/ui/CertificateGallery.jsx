@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Award, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { certificates } from '../../data/certificates.js';
+import { useContent } from '../../content/ContentContext.jsx';
 
 // Resume-style certificate list; "View Certificate" opens a full-screen lightbox.
 export default function CertificateGallery() {
+  const { certificates } = useContent();
   const [index, setIndex] = useState(null);
   const isOpen = index !== null;
 

@@ -16,7 +16,7 @@ import {
 import Section from '../ui/Section.jsx';
 import SegmentedTabs from '../ui/SegmentedTabs.jsx';
 import CertificateGallery from '../ui/CertificateGallery.jsx';
-import { skills, softSkills } from '../../data/skills.js';
+import { useContent } from '../../content/ContentContext.jsx';
 
 // Small icon per technical category (falls back to a generic layers icon).
 const categoryIcons = {
@@ -61,6 +61,7 @@ function SkillCard({ group }) {
 }
 
 function TechnicalSkills() {
+  const { skills } = useContent();
   return (
     <div className="grid items-stretch gap-6 sm:grid-cols-2">
       {skills.map((group) => (
@@ -103,6 +104,7 @@ function SoftSkillCard({ skill }) {
 }
 
 function SoftSkills() {
+  const { softSkills } = useContent();
   return (
     <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {softSkills.map((skill) => (
@@ -129,11 +131,19 @@ const panels = {
 };
 
 export default function Skills() {
+  const { siteText } = useContent();
+  const t = siteText.sections.skills;
   const [active, setActive] = useState('technical');
   const ActivePanel = panels[active];
 
   return (
-    <Section id="skills" title="Skills" padY="pt-12 pb-28 sm:pt-16 sm:pb-40">
+    <Section
+      id="skills"
+      eyebrow={t.eyebrow}
+      title={t.title}
+      subtitle={t.subtitle}
+      padY="pt-12 pb-28 sm:pt-16 sm:pb-40"
+    >
       {/* Tabs — segmented control */}
       <SegmentedTabs
         tabs={tabs}

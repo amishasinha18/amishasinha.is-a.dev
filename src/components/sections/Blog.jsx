@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Calendar, ExternalLink, FileText, PenLine } from 'lucide-react';
 import Section from '../ui/Section.jsx';
-import { blogs } from '../../data/blogs.js';
+import { useContent } from '../../content/ContentContext.jsx';
 
 // Shown until data/blogs.js has entries. Kept deliberately warm rather than
 // looking like a broken page.
@@ -103,12 +103,14 @@ function PostCard({ post, index }) {
 }
 
 export default function Blog() {
+  const { blogs, siteText } = useContent();
+  const t = siteText.sections.blog;
   return (
     <Section
       id="blog"
-      eyebrow="Writing & insights"
-      title="Blog"
-      subtitle="Technical articles, writing, and insights I've put together along the way."
+      eyebrow={t.eyebrow}
+      title={t.title}
+      subtitle={t.subtitle}
     >
       {blogs.length > 0 ? (
         <div className="grid items-stretch gap-8 md:grid-cols-2">

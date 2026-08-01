@@ -1,15 +1,17 @@
 import { Plus, X } from 'lucide-react';
 
-// Small, reusable form inputs for the admin editors. Deliberately plain and
-// utilitarian — this is a control panel, not part of the public site.
+// Small, reusable form inputs for the admin editors, styled with the site's
+// aubergine design tokens (primary/surface/border/foreground/muted).
 
 const inputBase =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500';
+  'w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-2 focus:ring-primary/25';
+
+const labelText = 'mb-1.5 block text-xs font-semibold text-muted';
 
 export function TextField({ label, value, onChange, placeholder }) {
   return (
     <label className="block">
-      {label && <span className="mb-1 block text-xs font-medium text-slate-600">{label}</span>}
+      {label && <span className={labelText}>{label}</span>}
       <input
         type="text"
         value={value ?? ''}
@@ -24,7 +26,7 @@ export function TextField({ label, value, onChange, placeholder }) {
 export function TextArea({ label, value, onChange, rows = 3, placeholder }) {
   return (
     <label className="block">
-      {label && <span className="mb-1 block text-xs font-medium text-slate-600">{label}</span>}
+      {label && <span className={labelText}>{label}</span>}
       <textarea
         rows={rows}
         value={value ?? ''}
@@ -38,12 +40,12 @@ export function TextArea({ label, value, onChange, rows = 3, placeholder }) {
 
 export function Checkbox({ label, value, onChange }) {
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-700">
+    <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
       <input
         type="checkbox"
         checked={!!value}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+        className="h-4 w-4 rounded border-border text-primary focus:ring-primary/30"
       />
       {label}
     </label>
@@ -59,7 +61,7 @@ export function StringList({ label, value, onChange, placeholder }) {
 
   return (
     <div>
-      {label && <span className="mb-1 block text-xs font-medium text-slate-600">{label}</span>}
+      {label && <span className={labelText}>{label}</span>}
       <div className="space-y-2">
         {items.map((it, i) => (
           <div key={i} className="flex items-center gap-2">
@@ -73,7 +75,7 @@ export function StringList({ label, value, onChange, placeholder }) {
             <button
               type="button"
               onClick={() => remove(i)}
-              className="shrink-0 rounded-md p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+              className="shrink-0 rounded-md p-1.5 text-muted transition hover:bg-red-500/10 hover:text-red-500"
               title="Remove"
             >
               <X size={16} />
@@ -83,7 +85,7 @@ export function StringList({ label, value, onChange, placeholder }) {
         <button
           type="button"
           onClick={add}
-          className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-500 transition hover:border-indigo-400 hover:text-indigo-600"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-1.5 text-xs font-medium text-muted transition hover:border-primary/50 hover:text-primary"
         >
           <Plus size={14} /> Add
         </button>

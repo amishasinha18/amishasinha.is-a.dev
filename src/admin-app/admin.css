@@ -2,9 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* The dashboard is a self-contained tool: plain system UI font, normal text
-   selection (the public site's copy-protection / decorative layers are not
-   loaded here). */
-body {
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+/* The admin uses the SAME aubergine design tokens as the public site, so the
+   semantic Tailwind colors (primary/accent/background/surface/foreground/
+   muted/border) resolve here too. Dark mode is driven by a `.dark` class on
+   <html> (set in main.jsx), matching the site's class-based dark strategy. */
+@layer base {
+  :root {
+    --color-background: 244 244 244; /* #F4F4F4 */
+    --color-surface: 249 249 249; /* #F9F9F9 */
+    --color-foreground: 31 26 29; /* #1F1A1D */
+    --color-muted: 108 92 103; /* #6C5C67 */
+    --color-border: 231 225 229; /* #E7E1E5 */
+    --color-primary: 119 33 111; /* #77216F aubergine */
+    --color-primary-fg: 255 255 255;
+    --color-accent: 233 84 32; /* #E95420 orange */
+    --color-accent-fg: 255 255 255;
+  }
+
+  .dark {
+    --color-background: 44 0 30; /* #2C001E */
+    --color-surface: 59 13 44; /* #3B0D2C */
+    --color-foreground: 245 238 242; /* #F5EEF2 */
+    --color-muted: 180 159 172; /* #B49FAC */
+    --color-border: 82 48 74; /* #52304A */
+    --color-primary: 192 139 214; /* #C08BD6 */
+    --color-primary-fg: 44 0 30;
+    --color-accent: 233 84 32;
+    --color-accent-fg: 255 255 255;
+  }
+
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Token-aware scrollbars, matching the site's terminal feel. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--color-background));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-border));
+    border: 2px solid rgb(var(--color-background));
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--color-primary) / 0.6);
+  }
 }

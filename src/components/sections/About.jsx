@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { GraduationCap, School, BookOpen, Trophy } from 'lucide-react';
 import { useContent } from '../../content/ContentContext.jsx';
-import CustomSections from './CustomSections.jsx';
 
 // Icon per education level (falls back to the graduation cap).
 const eduIcons = [GraduationCap, School, BookOpen];
@@ -147,8 +146,6 @@ export default function About() {
               </div>
             </motion.div>
           </div>
-
-          <CustomSections />
         </div>
       </div>
     </section>

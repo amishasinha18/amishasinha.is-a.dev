@@ -19,7 +19,7 @@ function Field({ field, value, onChange }) {
 
 // Generic editor for an array of objects. `schema` is a list of
 // { key, label, type } describing each editable field. `newItem` seeds "Add".
-export default function ListEditor({ items, schema, onChange, newItem, titleKey }) {
+export default function ListEditor({ items, schema, onChange, newItem, titleKey, addLabel }) {
   const list = Array.isArray(items) ? items : [];
 
   const updateItem = (i, next) => onChange(list.map((it, idx) => (idx === i ? next : it)));
@@ -34,20 +34,37 @@ export default function ListEditor({ items, schema, onChange, newItem, titleKey 
     onChange(copy);
   };
 
+  const ctrlBtn =
+    'rounded-md p-1 text-muted transition hover:bg-primary/10 hover:text-primary disabled:opacity-30 disabled:hover:bg-transparent';
+
   return (
     <div className="space-y-4">
+      {list.length === 0 && (
+        <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted">
+          Nothing here yet — add your first entry below.
+        </p>
+      )}
+
       {list.map((item, i) => (
-        <div key={i} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm font-semibold text-slate-700">
-              {(titleKey && getPath(item, titleKey)) || `Item ${i + 1}`}
+        <div
+          key={i}
+          className="rounded-xl border border-border bg-surface p-4 shadow-sm ring-1 ring-black/[0.02] dark:ring-white/[0.03]"
+        >
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[11px] font-bold text-primary">
+                {i + 1}
+              </span>
+              <span className="truncate">
+                {(titleKey && getPath(item, titleKey)) || `Item ${i + 1}`}
+              </span>
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex shrink-0 items-center gap-1">
               <button
                 type="button"
                 onClick={() => move(i, -1)}
                 disabled={i === 0}
-                className="rounded p-1 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 disabled:opacity-30"
+                className={ctrlBtn}
                 title="Move up"
               >
                 <ChevronUp size={16} />
@@ -56,7 +73,7 @@ export default function ListEditor({ items, schema, onChange, newItem, titleKey 
                 type="button"
                 onClick={() => move(i, 1)}
                 disabled={i === list.length - 1}
-                className="rounded p-1 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 disabled:opacity-30"
+                className={ctrlBtn}
                 title="Move down"
               >
                 <ChevronDown size={16} />
@@ -64,7 +81,7 @@ export default function ListEditor({ items, schema, onChange, newItem, titleKey 
               <button
                 type="button"
                 onClick={() => remove(i)}
-                className="rounded p-1 text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+                className="rounded-md p-1 text-muted transition hover:bg-red-500/10 hover:text-red-500"
                 title="Remove"
               >
                 <Trash2 size={16} />
@@ -88,9 +105,9 @@ export default function ListEditor({ items, schema, onChange, newItem, titleKey 
       <button
         type="button"
         onClick={add}
-        className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-fg shadow-sm transition hover:opacity-90"
       >
-        <Plus size={16} /> Add new
+        <Plus size={16} /> {addLabel || 'Add new'}
       </button>
     </div>
   );

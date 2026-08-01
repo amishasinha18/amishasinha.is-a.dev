@@ -9,6 +9,7 @@ import Skills from './components/sections/Skills.jsx';
 import Projects from './components/sections/Projects.jsx';
 import Blog from './components/sections/Blog.jsx';
 import Contact from './components/sections/Contact.jsx';
+import CustomSections from './components/sections/CustomSections.jsx';
 import GetInTouchFab from './components/ui/GetInTouchFab.jsx';
 import { useContentProtection } from './hooks/useContentProtection.js';
 
@@ -51,6 +52,9 @@ export default function App() {
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
             <ActivePage onNavigate={navigate} />
+            {/* Owner-added custom blocks render at the bottom of whichever
+                page is active (managed per-page from the admin). */}
+            <CustomSections page={activePage} />
           </motion.div>
         </AnimatePresence>
       </main>

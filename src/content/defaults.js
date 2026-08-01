@@ -59,9 +59,17 @@ export const terminalCommands = [
   },
 ];
 
-// Free-form sections the owner can add from the admin. Each renders as a
-// titled card (title + body) at the end of the About page.
-export const customSections = [];
+// Free-form sections the owner can add from the admin, keyed by site page.
+// Each entry is a titled card (title + body) rendered at the end of that page.
+export const customSections = {
+  home: [],
+  about: [],
+  experience: [],
+  skills: [],
+  projects: [],
+  blog: [],
+  contact: [],
+};
 
 // Fixed UI copy — nav labels, hero text, section headings, contact copy,
 // footer and terminal chrome. Extracted here so every string is editable.

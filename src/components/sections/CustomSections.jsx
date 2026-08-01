@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useContent } from '../../content/ContentContext.jsx';
+import { sectionsForPage } from '../../content/customSections.js';
 
 function reveal(i = 0) {
   return {
@@ -10,17 +11,18 @@ function reveal(i = 0) {
   };
 }
 
-// Renders the owner's custom sections (added from the admin) as titled cards,
-// styled like the "My Story" card. Nothing renders until at least one exists.
-export default function CustomSections() {
+// Renders the owner's custom sections for a given page (added from the admin)
+// as titled cards, styled like the "My Story" card. Nothing renders until the
+// page has at least one non-empty block.
+export default function CustomSections({ page }) {
   const { customSections } = useContent();
-  const items = (Array.isArray(customSections) ? customSections : []).filter(
+  const items = sectionsForPage(customSections, page).filter(
     (s) => s && (s.title || s.body)
   );
   if (items.length === 0) return null;
 
   return (
-    <>
+    <div className="container space-y-16 pb-24 pt-12 sm:pt-16">
       {items.map((section, i) => (
         <motion.div key={i} {...reveal(i)}>
           <div className="group relative mx-auto max-w-5xl">
@@ -45,6 +47,6 @@ export default function CustomSections() {
           </div>
         </motion.div>
       ))}
-    </>
+    </div>
   );
 }

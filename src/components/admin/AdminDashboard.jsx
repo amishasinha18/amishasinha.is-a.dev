@@ -1,6 +1,38 @@
 import { useState } from 'react';
-import { Check, Download, ExternalLink, LogOut, RotateCcw, Save, Undo2 } from 'lucide-react';
+import {
+  Award,
+  BarChart3,
+  BookOpen,
+  Briefcase,
+  Check,
+  ChevronRight,
+  Cpu,
+  Download,
+  ExternalLink,
+  FolderKanban,
+  GraduationCap,
+  LayoutGrid,
+  LayoutTemplate,
+  LogOut,
+  Mail,
+  Menu,
+  Moon,
+  NotebookPen,
+  PanelBottom,
+  RotateCcw,
+  Save,
+  Sparkles,
+  SquareTerminal,
+  Sun,
+  Trophy,
+  Type,
+  Undo2,
+  User,
+  Users,
+  Wrench,
+} from 'lucide-react';
 import { useContent } from '../../content/ContentContext.jsx';
+import { normalizeCustomSections, sectionsForPage } from '../../content/customSections.js';
 import { StringList, TextArea, TextField } from './fields.jsx';
 import { setPath } from './paths.js';
 import ListEditor from './ListEditor.jsx';
@@ -137,15 +169,13 @@ const SCHEMAS = {
       { key: 'output', label: 'Output lines', type: 'stringlist', full: true },
     ],
   },
-  customSections: {
-    titleKey: 'title',
-    newItem: () => ({ title: '', body: '' }),
-    fields: [
-      { key: 'title', label: 'Section title' },
-      { key: 'body', label: 'Content', type: 'textarea', rows: 5, full: true },
-    ],
-  },
 };
+
+// Schema for a per-page custom section block.
+const CUSTOM_SCHEMA = [
+  { key: 'title', label: 'Section title' },
+  { key: 'body', label: 'Content', type: 'textarea', rows: 5, full: true },
+];
 
 // "Meta" panels edit slices of siteText (fixed UI copy) or projectTabs. Each
 // declares how to read its slice, write it back, and which editor to render.
@@ -214,41 +244,123 @@ const META = {
   },
 };
 
-// Sidebar order + labels.
-const SECTIONS = [
-  ['profile', 'Profile'],
-  ['heroText', 'Hero Text'],
-  ['milestones', 'Hero Stats'],
-  ['aboutParagraphs', 'About Story'],
-  ['sportsAchievements', 'Beyond Academics'],
-  ['terminalCommands', 'Terminal'],
-  ['experience', 'Experience'],
-  ['projects', 'Projects'],
-  ['projectTabs', 'Project Tabs'],
-  ['electronicsProject', 'Electronics Project'],
-  ['skills', 'Skills'],
-  ['softSkills', 'Soft Skills'],
-  ['education', 'Education'],
-  ['certificates', 'Certificates'],
-  ['blogs', 'Blog'],
-  ['customSections', 'Custom Sections'],
-  ['navigation', 'Navigation'],
-  ['sectionHeadings', 'Section Headings'],
-  ['contactText', 'Contact Text'],
-  ['footerText', 'Footer & Terminal'],
+// Icon per section key (custom:* handled separately).
+const ICONS = {
+  profile: User,
+  navigation: Menu,
+  sectionHeadings: Type,
+  footerText: PanelBottom,
+  heroText: Sparkles,
+  milestones: BarChart3,
+  terminalCommands: SquareTerminal,
+  aboutParagraphs: BookOpen,
+  education: GraduationCap,
+  sportsAchievements: Trophy,
+  experience: Briefcase,
+  projects: FolderKanban,
+  projectTabs: LayoutGrid,
+  electronicsProject: Cpu,
+  skills: Wrench,
+  softSkills: Users,
+  certificates: Award,
+  blogs: NotebookPen,
+  contactText: Mail,
+};
+
+// Sidebar organised by page. Each group with a `page` gets a synthetic
+// "Custom sections" entry (custom:<page>) that edits that page's blocks.
+const GROUPS = [
+  {
+    label: 'Site-wide',
+    items: [
+      ['profile', 'Profile'],
+      ['navigation', 'Navigation'],
+      ['sectionHeadings', 'Section Headings'],
+      ['footerText', 'Footer & Terminal'],
+    ],
+  },
+  {
+    label: 'Home',
+    page: 'home',
+    items: [
+      ['heroText', 'Hero Text'],
+      ['milestones', 'Hero Stats'],
+      ['terminalCommands', 'Terminal'],
+    ],
+  },
+  {
+    label: 'About',
+    page: 'about',
+    items: [
+      ['aboutParagraphs', 'About Story'],
+      ['education', 'Education'],
+      ['sportsAchievements', 'Beyond Academics'],
+    ],
+  },
+  { label: 'Experience', page: 'experience', items: [['experience', 'Experience']] },
+  {
+    label: 'Projects',
+    page: 'projects',
+    items: [
+      ['projects', 'Projects'],
+      ['projectTabs', 'Project Tabs'],
+      ['electronicsProject', 'Electronics Project'],
+    ],
+  },
+  {
+    label: 'Skills',
+    page: 'skills',
+    items: [
+      ['skills', 'Skills'],
+      ['softSkills', 'Soft Skills'],
+      ['certificates', 'Certificates'],
+    ],
+  },
+  { label: 'Blog', page: 'blog', items: [['blogs', 'Blog']] },
+  { label: 'Contact', page: 'contact', items: [['contactText', 'Contact Text']] },
 ];
 
-const labelFor = (key) => META[key]?.label ?? SECTIONS.find(([k]) => k === key)?.[1] ?? key;
+// Expand each group's items with its custom-sections entry.
+function groupItems(group) {
+  return group.page ? [...group.items, [`custom:${group.page}`, 'Custom sections']] : group.items;
+}
+
+const iconFor = (key) => (key.startsWith('custom:') ? LayoutTemplate : ICONS[key] ?? Sparkles);
+
+function labelFor(key) {
+  if (key.startsWith('custom:')) return 'Custom sections';
+  if (META[key]) return META[key].label;
+  for (const g of GROUPS) {
+    const found = groupItems(g).find(([k]) => k === key);
+    if (found) return found[1];
+  }
+  return key;
+}
+
+// The page-group label an active key belongs to (for the breadcrumb).
+function groupLabelFor(key) {
+  for (const g of GROUPS) {
+    if (groupItems(g).some(([k]) => k === key)) return g.label;
+  }
+  return '';
+}
 
 // Read/write the stored value for a section (projects live under projectData,
-// meta panels edit slices of siteText).
+// meta panels edit slices of siteText, custom:<page> lives under customSections).
 function readSection(key, content) {
+  if (key.startsWith('custom:')) return sectionsForPage(content.customSections, key.slice(7));
   if (META[key]) return META[key].read(content);
   if (key === 'projects') return content.projectData?.tech ?? [];
   return content[key];
 }
 function writeSection(key, draft, content, updateSection) {
-  if (META[key]) {
+  if (key.startsWith('custom:')) {
+    const page = key.slice(7);
+    updateSection('customSections', {
+      ...normalizeCustomSections(content.customSections),
+      [page]: draft,
+    });
+  } else if (META[key]) {
     META[key].write(content, updateSection, draft);
   } else if (key === 'projects') {
     updateSection('projectData', { ...content.projectData, tech: draft });
@@ -257,75 +369,147 @@ function writeSection(key, draft, content, updateSection) {
   }
 }
 
+// Small icon button used in the top action bar.
+function IconAction({ icon: Icon, label, onClick, href, danger }) {
+  const cls = `inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition ${
+    danger
+      ? 'border-border text-red-500 hover:border-red-400 hover:bg-red-500/10'
+      : 'border-border text-muted hover:border-primary/50 hover:text-primary hover:bg-primary/5'
+  }`;
+  const inner = (
+    <>
+      <Icon size={15} />
+      <span className="hidden md:inline">{label}</span>
+    </>
+  );
+  return href ? (
+    <a href={href} className={cls} title={label}>
+      {inner}
+    </a>
+  ) : (
+    <button type="button" onClick={onClick} className={cls} title={label}>
+      {inner}
+    </button>
+  );
+}
+
+function ThemeToggle() {
+  const [dark, setDark] = useState(
+    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+  );
+  const toggle = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    try {
+      localStorage.setItem('admin-theme', next ? 'dark' : 'light');
+    } catch {
+      /* ignore */
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      title={dark ? 'Switch to light' : 'Switch to dark'}
+      aria-label="Toggle theme"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted transition hover:border-primary/50 hover:text-primary"
+    >
+      {dark ? <Sun size={15} /> : <Moon size={15} />}
+    </button>
+  );
+}
+
 export default function AdminDashboard({ onExit }) {
   const content = useContent();
   const { updateSection, exportJson, resetAll } = content;
   const [active, setActive] = useState('profile');
 
   return (
-    <div className="flex min-h-screen bg-slate-100 text-slate-900">
-      <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white">
-        <div className="border-b border-slate-200 px-4 py-4">
-          <p className="text-sm font-bold text-slate-800">Portfolio Admin</p>
-          <p className="mt-0.5 text-[11px] text-slate-400">Local preview · Save to apply</p>
+    <div className="flex min-h-screen bg-background text-foreground">
+      {/* Sidebar */}
+      <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-surface">
+        <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-fg shadow-sm">
+            AS
+          </span>
+          <div className="leading-tight">
+            <p className="text-sm font-bold text-foreground">Portfolio Admin</p>
+            <p className="text-[11px] text-muted">Content studio</p>
+          </div>
         </div>
-        <nav className="flex-1 overflow-y-auto p-2">
-          {SECTIONS.map(([key, label]) => (
-            <button
-              key={key}
-              onClick={() => setActive(key)}
-              className={`mb-0.5 w-full rounded-md px-3 py-2 text-left text-sm transition ${
-                active === key
-                  ? 'bg-indigo-600 font-semibold text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              {label}
-            </button>
+
+        <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+          {GROUPS.map((group) => (
+            <div key={group.label}>
+              <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted/70">
+                {group.label}
+              </p>
+              <div className="space-y-0.5">
+                {groupItems(group).map(([key, label]) => {
+                  const Icon = iconFor(key);
+                  const isActive = active === key;
+                  const isCustom = key.startsWith('custom:');
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setActive(key)}
+                      className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition ${
+                        isActive
+                          ? 'bg-primary font-semibold text-primary-fg shadow-sm'
+                          : 'text-muted hover:bg-primary/10 hover:text-foreground'
+                      } ${isCustom && !isActive ? 'text-muted/80' : ''}`}
+                    >
+                      <Icon size={15} className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </nav>
-        <div className="space-y-1 border-t border-slate-200 p-2">
-          <a
-            href="/"
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100"
-          >
-            <ExternalLink size={15} /> View site
-          </a>
-          <button
-            onClick={exportJson}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100"
-          >
-            <Download size={15} /> Export JSON
-          </button>
-          <button
-            onClick={() => {
-              if (confirm('Discard all saved local edits and restore defaults?')) resetAll();
-            }}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100"
-          >
-            <RotateCcw size={15} /> Reset
-          </button>
-          <button
-            onClick={() => onExit?.()}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-500 transition hover:bg-red-50"
-          >
-            <LogOut size={15} /> Log out
-          </button>
-        </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-3xl px-6 py-8">
-          {/* key={active} remounts the editor on section switch so the draft
-              resets to that section's saved value. */}
-          <SectionEditor
-            key={active}
-            sectionKey={active}
-            content={content}
-            updateSection={updateSection}
-          />
-        </div>
-      </main>
+      {/* Main */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border bg-background/80 px-6 py-3 backdrop-blur">
+          <div className="min-w-0">
+            <p className="flex items-center gap-1 text-[11px] font-medium text-muted">
+              {groupLabelFor(active)}
+              <ChevronRight size={12} className="text-muted/60" />
+              <span className="text-primary">{labelFor(active)}</span>
+            </p>
+            <h1 className="truncate text-lg font-bold text-foreground">{labelFor(active)}</h1>
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ThemeToggle />
+            <IconAction icon={ExternalLink} label="View site" href="/" />
+            <IconAction icon={Download} label="Export" onClick={exportJson} />
+            <IconAction
+              icon={RotateCcw}
+              label="Reset"
+              onClick={() => {
+                if (confirm('Discard all saved local edits and restore defaults?')) resetAll();
+              }}
+            />
+            <IconAction icon={LogOut} label="Log out" danger onClick={() => onExit?.()} />
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-3xl px-6 py-8">
+            {/* key={active} remounts the editor on section switch so the draft
+                resets to that section's saved value. */}
+            <SectionEditor
+              key={active}
+              sectionKey={active}
+              content={content}
+              updateSection={updateSection}
+            />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
@@ -333,16 +517,16 @@ export default function AdminDashboard({ onExit }) {
 // Sticky Save / Discard bar. Nothing is applied to the live content until Save.
 function SaveBar({ dirty, saved, onSave, onDiscard }) {
   return (
-    <div className="sticky top-0 z-10 -mx-6 mb-5 flex items-center justify-between border-b border-slate-200 bg-slate-100/90 px-6 py-3 backdrop-blur">
+    <div className="sticky top-0 z-10 -mx-6 mb-6 flex items-center justify-between border-b border-border bg-background/90 px-6 py-3 backdrop-blur">
       <span className="text-sm">
         {saved ? (
-          <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600">
+          <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
             <Check size={15} /> Saved
           </span>
         ) : dirty ? (
-          <span className="font-medium text-amber-600">● Unsaved changes</span>
+          <span className="font-medium text-accent">● Unsaved changes</span>
         ) : (
-          <span className="text-slate-400">No changes</span>
+          <span className="text-muted">No changes</span>
         )}
       </span>
       <div className="flex items-center gap-2">
@@ -350,7 +534,7 @@ function SaveBar({ dirty, saved, onSave, onDiscard }) {
           type="button"
           onClick={onDiscard}
           disabled={!dirty}
-          className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-200 disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted transition hover:bg-primary/5 hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
         >
           <Undo2 size={15} /> Discard
         </button>
@@ -358,21 +542,11 @@ function SaveBar({ dirty, saved, onSave, onDiscard }) {
           type="button"
           onClick={onSave}
           disabled={!dirty}
-          className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-fg shadow-sm transition hover:opacity-90 disabled:opacity-40"
         >
           <Save size={15} /> Save
         </button>
       </div>
-    </div>
-  );
-}
-
-function Panel({ title, hint, children }) {
-  return (
-    <div>
-      <h2 className="text-xl font-bold text-slate-800">{title}</h2>
-      {hint && <p className="mt-1 text-sm text-slate-500">{hint}</p>}
-      <div className="mt-5">{children}</div>
     </div>
   );
 }
@@ -400,16 +574,34 @@ function SectionEditor({ sectionKey, content, updateSection }) {
     setSaved(false);
   };
 
+  const hint = sectionKey.startsWith('custom:')
+    ? 'Add titled blocks that render at the bottom of this page. Applied on Save.'
+    : 'Edits apply to the site only when you click Save.';
+
   return (
-    <Panel title={labelFor(sectionKey)} hint="Edits apply to the site only when you click Save.">
+    <>
       <SaveBar dirty={dirty} saved={saved} onSave={save} onDiscard={discard} />
+      <p className="mb-5 text-sm text-muted">{hint}</p>
       <SectionFields sectionKey={sectionKey} draft={draft} onChange={onDraftChange} />
-    </Panel>
+    </>
   );
 }
 
 // Renders the right editor for a section, bound to the draft (not the store).
 function SectionFields({ sectionKey, draft, onChange }) {
+  if (sectionKey.startsWith('custom:')) {
+    return (
+      <ListEditor
+        items={draft}
+        schema={CUSTOM_SCHEMA}
+        titleKey="title"
+        newItem={() => ({ title: '', body: '' })}
+        onChange={onChange}
+        addLabel="Add section"
+      />
+    );
+  }
+
   const meta = META[sectionKey];
   if (meta) {
     const set = (path, val) => onChange(setPath(draft, path, val));
@@ -470,8 +662,8 @@ function SectionFields({ sectionKey, draft, onChange }) {
       return (
         <div className="space-y-4">
           {HEADING_SECTIONS.map(([key, label]) => (
-            <div key={key} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <p className="mb-3 text-sm font-semibold text-slate-700">{label}</p>
+            <div key={key} className="rounded-xl border border-border bg-surface p-4">
+              <p className="mb-3 text-sm font-semibold text-foreground">{label}</p>
               <div className="grid gap-3">
                 <TextField
                   label="Eyebrow"
@@ -521,11 +713,7 @@ function SectionFields({ sectionKey, draft, onChange }) {
             value={draft.rights}
             onChange={(v) => set('rights', v)}
           />
-          <TextField
-            label="Terminal host"
-            value={draft.host}
-            onChange={(v) => set('host', v)}
-          />
+          <TextField label="Terminal host" value={draft.host} onChange={(v) => set('host', v)} />
         </div>
       );
     }
@@ -591,9 +779,7 @@ function SectionFields({ sectionKey, draft, onChange }) {
   }
 
   if (sectionKey === 'aboutParagraphs') {
-    return (
-      <StringList value={draft} onChange={onChange} placeholder="A paragraph…" />
-    );
+    return <StringList value={draft} onChange={onChange} placeholder="A paragraph…" />;
   }
 
   return null;

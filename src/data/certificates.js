@@ -26,6 +26,12 @@ export const certificates = [
     image: '/certificates/dsa.png',
   },
   {
+    title: 'Object Oriented Programming',
+    organization: 'iamneo',
+    year: 'Oct 2025 – Jan 2026',
+    image: 'https://i.ibb.co/dYtt7RW/Certificate-C-pdf.png',
+  },
+  {
     title: 'Database Management System (Part 1)',
     organization: 'Infosys Springboard',
     year: '2026',

@@ -10,7 +10,7 @@ export const certificates = [
   {
     title: 'C Programming',
     organization: 'Lovely Professional University',
-    year: 'Jan 2026 – May 2026',
+    year: 'Jan 2025 – May 2025',
     image: '/certificates/c-programming.png',
   },
   {

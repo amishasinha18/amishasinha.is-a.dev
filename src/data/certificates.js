@@ -22,7 +22,7 @@ export const certificates = [
   {
     title: 'Data Structures & Algorithms',
     organization: 'Lovely Professional University',
-    year: '2026',
+    year: 'Oct 2025 – Jan 2026',
     image: '/certificates/dsa.png',
   },
   {

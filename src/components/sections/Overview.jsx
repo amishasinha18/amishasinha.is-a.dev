@@ -62,8 +62,7 @@ export default function Overview({ onNavigate }) {
                 variant="purple"
                 href="/resume.pdf"
                 target="_blank"
-                rel="noreferrer"
-                download
+                rel="noopener noreferrer"
                 className="shadow-lg shadow-primary/30 duration-300 ease-out hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/50"
               >
                 <Download size={18} /> {hero.resumeLabel}

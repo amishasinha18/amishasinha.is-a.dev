@@ -60,7 +60,7 @@ export default function Overview({ onNavigate }) {
             >
               <Button
                 variant="purple"
-                href="https://i.ibb.co/ns8CFMBv/CV-AMISHA.png"
+                href="/resume.pdf"
                 target="_blank"
                 rel="noreferrer"
                 download

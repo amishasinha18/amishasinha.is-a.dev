@@ -21,7 +21,7 @@ export const certificates = [
   },
   {
     title: 'Data Structures & Algorithms',
-    organization: 'Lovely Professional University',
+    organization: 'iamneo',
     year: 'Oct 2025 – Jan 2026',
     image: '/certificates/dsa.png',
   },

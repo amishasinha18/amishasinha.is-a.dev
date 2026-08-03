@@ -55,4 +55,16 @@ export const certificates = [
     year: '2026',
     image: 'https://i.ibb.co/qMzMmz81/e-Certificate-1.png',
   },
+  {
+    title: 'AWS Academy Graduate – Cloud Foundations',
+    organization: 'AWS Academy',
+    year: '2026',
+    image: 'https://i.ibb.co/xSrZDgWg/05d01267-3bd0-49e0-9d0b-6105e1c397b4.jpg',
+  },
+  {
+    title: 'AWS Cloud Foundations – Trained Badge',
+    organization: 'AWS Academy',
+    year: '2026',
+    image: 'https://i.ibb.co/wFxmx6vM/669f3dd4-19b6-4181-85ba-f781bb2e7b57.jpg',
+  },
 ];

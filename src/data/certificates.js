@@ -64,7 +64,7 @@ export const certificates = [
   {
     title: 'AWS Academy Cloud Foundations',
     organization: 'AWS Academy',
-    year: '2026',
+    year: 'Jan 2026 – May 2026',
     image: 'https://i.ibb.co/xSrZDgWg/05d01267-3bd0-49e0-9d0b-6105e1c397b4.jpg',
     // A single unified card exposing both artefacts as separate buttons.
     links: [

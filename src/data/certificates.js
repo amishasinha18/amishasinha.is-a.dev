@@ -49,4 +49,10 @@ export const certificates = [
     year: '2026',
     image: '/certificates/oracle-ai.png',
   },
+  {
+    title: 'Oracle Data Platform Foundations Associate',
+    organization: 'Oracle',
+    year: '2026',
+    image: 'https://i.ibb.co/qMzMmz81/e-Certificate-1.png',
+  },
 ];

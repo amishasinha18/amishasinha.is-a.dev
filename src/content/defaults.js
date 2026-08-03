@@ -115,6 +115,11 @@ export const siteText = {
   terminal: { host: 'amisha@cloud' },
 };
 
+// Bump this whenever the shipped default content changes. A browser holding an
+// older localStorage snapshot (e.g. a preview saved in the admin) will detect
+// the mismatch and refresh to these latest defaults instead of shadowing them.
+export const CONTENT_VERSION = '2026-08-03.2';
+
 export const defaultContent = {
   profile,
   projectTabs,

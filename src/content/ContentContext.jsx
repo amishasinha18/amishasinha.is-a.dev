@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useState } from 'react';
-import { defaultContent } from './defaults.js';
+import { CONTENT_VERSION, defaultContent } from './defaults.js';
 
 // Runtime-editable content store. Every section reads its data from here via
 // `useContent()`, so admin edits re-render the real portfolio live. State is
@@ -15,7 +15,13 @@ function loadInitial() {
   if (typeof window === 'undefined') return defaultContent;
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (saved && typeof saved === 'object') return { ...defaultContent, ...saved };
+    // Only honor a saved snapshot from the CURRENT content version. An older
+    // (or unversioned) snapshot is discarded so newly shipped defaults — e.g. a
+    // project added in source — are never shadowed by a stale browser copy.
+    if (saved && typeof saved === 'object' && saved.__version === CONTENT_VERSION) {
+      return { ...defaultContent, ...saved };
+    }
+    if (saved) localStorage.removeItem(STORAGE_KEY);
   } catch {
     /* corrupt storage — fall back to defaults */
   }
@@ -28,7 +34,7 @@ export function ContentProvider({ children }) {
   // Replace one top-level section (e.g. 'experience') and persist.
   const updateSection = useCallback((key, value) => {
     setContent((prev) => {
-      const next = { ...prev, [key]: value };
+      const next = { ...prev, [key]: value, __version: CONTENT_VERSION };
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       } catch {

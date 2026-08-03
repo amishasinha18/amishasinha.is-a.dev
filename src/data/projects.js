@@ -66,7 +66,7 @@ export const projectData = {
         'Client-side medication reminders (localStorage)',
         'Serverless on Vercel with IP rate limiting',
       ],
-      demo: '',
+      demo: 'https://adaptive-care.vercel.app',
       github: 'https://github.com/amishasinha18/adaptive-care',
     },
     {

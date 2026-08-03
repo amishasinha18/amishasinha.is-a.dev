@@ -1,7 +1,55 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Award, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Award, ChevronLeft, ChevronRight, Rocket, ShieldCheck, X } from 'lucide-react';
 import { useContent } from '../../content/ContentContext.jsx';
+
+// --- Automatic categorisation ----------------------------------------------
+// Each card is classified from its title/issuer (or an explicit `cert.type`)
+// so course certificates, industry credentials, and hackathons/competitions/
+// workshops each get a distinct icon + badge colour, with no manual tagging.
+const VENDOR_RE = /\b(aws|amazon|oracle|google|microsoft|azure|gcp|ibm|cisco|red\s?hat|kubernetes|cncf|comptia|salesforce|meta|hashicorp)\b/i;
+const EVENT_RE = /\b(hack[\s-]?a[\s-]?thr?one|hackathon|hack|ideathon|code\s?sprint|competition|contest|challenge|olympiad|workshop|bootcamp)\b/i;
+const WORKSHOP_RE = /\b(workshop|bootcamp)\b/i;
+const COMPETITION_RE = /\b(competition|contest|challenge|olympiad|quiz)\b/i;
+
+function categorize(cert) {
+  if (cert.type) return cert.type; // explicit override wins
+  const hay = `${cert.title} ${cert.organization}`;
+  if (EVENT_RE.test(hay)) return 'event';
+  if (VENDOR_RE.test(cert.organization) || VENDOR_RE.test(cert.title)) return 'industry';
+  return 'course';
+}
+
+function eventLabel(cert) {
+  const hay = `${cert.title} ${cert.organization}`;
+  if (WORKSHOP_RE.test(hay)) return 'Workshop';
+  if (COMPETITION_RE.test(hay)) return 'Competition';
+  return 'Hackathon';
+}
+
+const CATEGORY = {
+  // Standard course completion — the original aubergine Award treatment.
+  course: {
+    Icon: Award,
+    wrap: 'bg-primary/10 text-primary ring-primary/20',
+    pill: '',
+    label: null,
+  },
+  // Industry / vendor credential — dedicated shield badge in Ubuntu orange.
+  industry: {
+    Icon: ShieldCheck,
+    wrap: 'bg-accent/10 text-accent ring-accent/20',
+    pill: 'border-accent/30 bg-accent/10 text-accent',
+    label: 'Industry',
+  },
+  // Hackathon / competition / workshop — a completely different emerald rocket.
+  event: {
+    Icon: Rocket,
+    wrap: 'bg-emerald-500/10 text-emerald-600 ring-emerald-500/20 dark:text-emerald-400',
+    pill: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+    label: null, // per-card via eventLabel
+  },
+};
 
 // Resume-style certificate list; each button opens a full-screen lightbox.
 // A card shows a single image by default, OR several labelled artefacts when
@@ -69,17 +117,31 @@ export default function CertificateGallery() {
           an ambient glow that blooms on hover over a hairline border warming
           to primary, with an inner ring surface. */}
       <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ cert, links, start }) => (
+        {cards.map(({ cert, links, start }) => {
+          const kind = categorize(cert);
+          const cat = CATEGORY[kind];
+          const CatIcon = cat.Icon;
+          const catLabel = kind === 'event' ? eventLabel(cert) : cat.label;
+          return (
           <div key={cert.image || cert.title} className="group/cert relative h-full">
             <div className="pointer-events-none absolute -inset-2 rounded-[1.75rem] bg-gradient-to-br from-primary/15 via-sky-500/10 to-transparent opacity-0 blur-2xl transition-opacity duration-500 ease-out group-hover/cert:opacity-100" />
             <div className="relative flex h-full flex-col rounded-2xl bg-gradient-to-br from-border via-border to-border/40 p-px shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-500 ease-out group-hover/cert:-translate-y-1.5 group-hover/cert:from-primary/50 group-hover/cert:via-accent/25 group-hover/cert:to-primary/30 group-hover/cert:shadow-[0_22px_48px_rgba(0,0,0,0.16)]">
               <div className="flex h-full flex-col rounded-[15px] bg-surface/80 p-6 ring-1 ring-black/5 backdrop-blur-md dark:ring-white/10">
-                {/* Award mark + year */}
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20 transition-transform duration-500 ease-out group-hover/cert:scale-105">
-                    <Award size={22} />
+                {/* Category badge + label + year */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 transition-transform duration-500 ease-out group-hover/cert:scale-105 ${cat.wrap}`}
+                  >
+                    <CatIcon size={22} />
                   </span>
-                  <span className="rounded-full border border-border bg-background/70 px-2.5 py-0.5 font-mono text-[11px] font-semibold tracking-tight text-muted">
+                  {catLabel && (
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cat.pill}`}
+                    >
+                      {catLabel}
+                    </span>
+                  )}
+                  <span className="ml-auto whitespace-nowrap rounded-full border border-border bg-background/70 px-2.5 py-0.5 font-mono text-[11px] font-semibold tracking-tight text-muted">
                     {cert.year}
                   </span>
                 </div>
@@ -115,7 +177,8 @@ export default function CertificateGallery() {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Lightbox */}

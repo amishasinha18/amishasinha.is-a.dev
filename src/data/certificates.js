@@ -15,7 +15,7 @@ export const certificates = [
   },
   {
     title: 'Java Programming',
-    organization: 'Lovely Professional University',
+    organization: 'iamneo',
     year: 'Jan 2026 – May 2026',
     image: '/certificates/java.png',
   },

@@ -56,6 +56,12 @@ export const certificates = [
     image: 'https://i.ibb.co/qMzMmz81/e-Certificate-1.png',
   },
   {
+    title: 'Oracle Cloud Infrastructure Foundations Associate',
+    organization: 'Oracle',
+    year: '2026',
+    image: 'https://i.ibb.co/XhrWCSk/e-Certificate-5.png',
+  },
+  {
     title: 'AWS Academy Cloud Foundations',
     organization: 'AWS Academy',
     year: '2026',
